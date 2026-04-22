@@ -1,7 +1,7 @@
 # UMS - Sistema de Usuários
 
 Meu primeiro projeto com banco de dados! Um sistema de cadastro 
-de usuários usando Python, Flask e SQLite — dá pra criar, listar, 
+de usuários usando Python, Flask e SQLite, dá pra criar, listar, 
 editar e deletar usuários. Feito do zero enquanto aprendia SQL e 
 como APIs funcionam.
 
@@ -17,7 +17,7 @@ como APIs funcionam.
 ## Observação
 
 Cada arquivo tem comentários explicando o que cada parte do 
-código faz — escrevi do meu jeito pra fixar melhor o que aprendi.
+código faz, escrevi do meu jeito pra fixar melhor o que aprendi.
 
 ## Tecnologias usadas
 
