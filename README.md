@@ -27,6 +27,6 @@ código faz, escrevi do meu jeito pra fixar melhor o que aprendi.
 
 ## Próximos passos
 
-- [ ] Adicionar hash de senha com werkzeug
-- [ ] Criar endpoint de login
+- [x] Adicionar hash de senha com werkzeug
+- [x] Criar endpoint de login
 - [ ] Integrar com o frontend que estou desenvolvendo no Figma
