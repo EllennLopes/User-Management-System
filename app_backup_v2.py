@@ -54,7 +54,7 @@ def login():
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT senha FROM usuarios WHERE email = ?", (dados['email'],))
+    cursor.execute("SELECT senha FROM usuários WHERW email = ?", (dados['email'],))
     resultado = cursor.fetchone() #fetchone pega só um resultado, até pq só tem um email igual né
     conn.close()
 
