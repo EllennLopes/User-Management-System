@@ -1,0 +1,20 @@
+# Conceito 
+
+Então né... Imagina que a senha do usuário é um segredo podre, tipo "Eu defequei robustamente e o sanitário da firma se encontra deveras congestionado..."
+Então vamos supor que você quis se confessar, e deixou um aviso num post-it para sua amiga da limpeza "Entupi o vaso com um torpedo, me ajuda", qualquer pessoa que passar no setor dela pode encontrar o post-it e espalhar seu segredo.
+
+O hash seria tipo, você entregou o post-it com o segredo pra sua amiga, uma fofoqueira encontrou o post-it posteriormente, mas a fofoqueira tem um código secreto de tradução e sempre transforma seu segredo em "Fiz uma pizza de abacaxi usando banana". Não é erro, é o método dela de não sair espalhando
+
+O banco de dados vai guardar só a frase da pizza de abacaxi feita com banana. Se alguém invadir, ele vai ler essa frase e pensar "Mas pizza de banana é cartola!", ele não tem a menor ideia sobre sua peripécia no sanitário da empresa.
+A fofoqueira(o hash) esquece o que viu no segundo em que termina de ler sua letra errada. Não dá pra desfazer.
+
+Aí o usuário volta quer entrar no teu sistema, então ele digita a senha de novo. O que vosso código deveria fazer? Não vai perguntar pro banco: "Ei, a senha é essa né?". Óbvio que não,amore.
+Vosso código pega a senha que o usuário digitou e joga na mão da fofoqueira. Se ela falar "Fiz uma pizza de abacaxi usando banana", você vai pensar "Hmm, as ideia tá batendo. Libera o acesso. 
+Agora se a fofoqueira disser "Pizza portuguesa" nega o acesso, NEGA! O Sistema não quer saber do vaso, quer saber se a pizza bate.
+
+outro exemplo: se você salvar a senha 12345 direto no banco de dados,  é pedir pra ser cancelada no LinkedIn. Se você usar o Hash, o hacker vai ver pbkdf2:sha256:600000$lixo-digital-gigante, ele vai passar um tempo pra descobrir que era só 12345, vai desistir e vender curso de NFT. 
+
+
+O que não fazer:
+ - Dar print(senha) no terminal
+ - Não salvar em texto puro
