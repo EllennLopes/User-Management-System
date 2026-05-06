@@ -1,6 +1,6 @@
 #Aqui seria tipo, o balcão de atendimento, esse aq fica rodando o tempo esperando alguém chamar, é a vossa API
 
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, redirect, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
         #generate_password_hash = a fofoqueira que transforma "entupi o vaso" em "pizza de abacaxi com banana".... referências vc só vai entender se ler o arquivo https://github.com/EllennLopes/User-Management-System/blob/main/Informa%C3%A7%C3%B5es%20que%20aprendi%20sobre%20Hash.txt
         # check_password_hash = a parte do código que pergunta para a fofoqueira "ei, a pizza bate?" 
@@ -46,15 +46,41 @@ def criar_usuario():
  
     return{"mensagem": "Usuário Criado!"}
     
-#login
-@app.route('/login', methods=['POST']) #quando alguém tentar entrar no sistema
-def login():
+#login via formulário HTML (porta da frente da casa)
+@app.route('/login', methods=['GET', 'POST'])
+def login_form():
+    if request.method =='POST': #se a pessoa bate na porta com POST
+        email = request.form['username'] #pega o email que a pessoa digitou no formulário
+        senha = request.form['password'] #faz a mesma coisa, só que com a senha
+
+        conn = conectar()
+        cursor = conn.cursor()
+        cursor.execute("SELECT senha FROM usuarios WHERE email = ?")
+        resultado = cursor.fetchone() #o tio do banco procura se tem ficha com esse email
+        conn.close()
+
+        if resultado is None: #se não tem nenhuma ficha com esse email
+            return {"mensagem": "Usuário não encontrado"}, 404
+        senha_do_banco = resultado[0] #pega a senha guardada na ficha
+        
+        #a fofoqueira compara se a senha que você digitou vira a mesma pizza que tá guardada
+        if check_password_hash(senha_do_banco, senha):
+            return redirect("dashboard") #se sim, abre o portão e manda pra sala principal
+        else:
+            return {"mensagem": "Senha incorreta"}, 401
+#se a pessoa veio só visistar (GET), mostra a pagina de login bonitinha
+    return render_template("login.html")
+
+#login via API JSON (porta dos fundos, usada por outros sistemas)
+@app.route('/api/login', methods=['POST']) #quando alguém tentar entrar no sistema
+def login_api():
     dados = request.json #pega o email e senha que vieram no corpo da requisição
+    email = dados['email']
+    senha = dados['senha']
 
     conn = conectar()
     cursor = conn.cursor()
-
-    cursor.execute("SELECT senha FROM usuarios WHERE email = ?", (dados['email'],))
+    cursor.execute("SELECT senha FROM usuarios WHERE email = ?", (email,))
     resultado = cursor.fetchone() #fetchone pega só um resultado, até pq só tem um email igual né
     conn.close()
 
