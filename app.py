@@ -2,7 +2,7 @@
 
 from flask import Flask, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-        #generate_password_hash = a fofoqueira que transforma "entupi o vaso" em "pizza de abacaxi com banana".... referências vc só vai entender se ler o arquivo
+        #generate_password_hash = a fofoqueira que transforma "entupi o vaso" em "pizza de abacaxi com banana".... referências vc só vai entender se ler o arquivo https://github.com/EllennLopes/User-Management-System/blob/main/Informa%C3%A7%C3%B5es%20que%20aprendi%20sobre%20Hash.txt
         # check_password_hash = a parte do código que pergunta para a fofoqueira "ei, a pizza bate?" 
 
 import sqlite3
