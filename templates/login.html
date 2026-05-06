@@ -53,9 +53,16 @@
 <body>
     <div class="container">
         <h2>Login</h2>
-        <input type="text" placeholder="Username">
-        <input type="password" placeholder="Password">
-        <button>Login</button>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username">
+            <input type="password" name="password" placeholder="Password">
+            
+            {% if erro %}
+                <p style="color: red;">{{ erro }}</p>
+            {% endif %}
+            
+            <button type="submit">Login</button>
+        </form>
         <a href="register.html">Register</a>
     </div>
 </body>

@@ -9,9 +9,19 @@ import sqlite3
 
 app = Flask(__name__) #vai criar o servidor
 
+
 def conectar():
     return sqlite3.connect('banco.db')
-
+def inicializar_banco():
+    conn = conectar()
+    conn.execute('''CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL, 
+        email TEXT UNIQUE NOT NULL,
+        senha TEXT NOT NULL
+    ) ''')
+    conn.commit()
+    conn.close()
 #O GET é tipo dizer "me mostra essas fichas(usuários) ae", e o POST é enviar, tipo "cria esse usuário aqui"
 #Aqui vai listar os usuário, "mostrar as fichas"
 @app.route('/usuarios', methods=['GET']) #quando alguém acessar os usuários 
@@ -19,7 +29,7 @@ def listar_usuarios():
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM usuarios") #select são as colunas
+    cursor.execute("SELECT id, nome, email FROM usuarios") #select são as colunas
     dados = cursor.fetchall() #fetchall pega todos os resultados de uma vez
 
     conn.close()
@@ -36,15 +46,19 @@ def criar_usuario():
     senha_hash = generate_password_hash(dados['senha'])
     #entrega a senha para a fofoqueira ANTES DE GUARDAR NO BANCO PLMDS
 
-
-    cursor.execute('''INSERT INTO usuarios (nome, email, senha) VALUES (?, ? ,?)''', (dados['nome'], dados['email'], senha_hash))
+    try:
+        cursor.execute('''INSERT INTO usuarios (nome, email, senha) VALUES (?, ? ,?)''', (dados['nome'], dados['email'], senha_hash))
     #As "?" vão ser substituídas na sequência em que você escreveu (nome, email,senha)
     # Repara que passamos senha_hash aqui, e não dados['senha'] diretamente
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        return{"mensagem": "Usuário Criado!"}
+    except sqlite3.IntegrityError:
+        return {"mensagem": "Email já cadastrado"},409
+    finally:
+        conn.close()
  
-    return{"mensagem": "Usuário Criado!"}
+    
     
 #login via formulário HTML (porta da frente da casa)
 @app.route('/login', methods=['GET', 'POST'])
@@ -55,19 +69,16 @@ def login_form():
 
         conn = conectar()
         cursor = conn.cursor()
-        cursor.execute("SELECT senha FROM usuarios WHERE email = ?")
+        cursor.execute("SELECT senha FROM usuarios WHERE email = ?", (email,))
         resultado = cursor.fetchone() #o tio do banco procura se tem ficha com esse email
         conn.close()
 
-        if resultado is None: #se não tem nenhuma ficha com esse email
-            return {"mensagem": "Usuário não encontrado"}, 404
-        senha_do_banco = resultado[0] #pega a senha guardada na ficha
-        
-        #a fofoqueira compara se a senha que você digitou vira a mesma pizza que tá guardada
-        if check_password_hash(senha_do_banco, senha):
-            return redirect("dashboard") #se sim, abre o portão e manda pra sala principal
-        else:
-            return {"mensagem": "Senha incorreta"}, 401
+        senha_do_banco = resultado[0] if resultado else "hash_falso"
+        valido = resultado is not None and check_password_hash(senha_do_banco, senha)
+
+        if valido:
+            return redirect("dashboard")
+        return render_template("login.html", erro = "email ou senha incorretos")
 #se a pessoa veio só visistar (GET), mostra a pagina de login bonitinha
     return render_template("login.html")
 
@@ -84,21 +95,31 @@ def login_api():
     resultado = cursor.fetchone() #fetchone pega só um resultado, até pq só tem um email igual né
     conn.close()
 
-    if resultado is None: #se não achou o email no banco
-        return{"mensagem": "Usuário não encontrado"}, 404
-    #404 é o código HTTP de "não encontrado"
+    senha_do_banco = resultado[0] if resultado else "hash_falso"
+    valido =  resultado is not None and check_password_hash(senha_do_banco, senha)
 
-    senha_do_banco = resultado[0] #pega a pizza de abacaxi que tá guardada no banco
-
-    if check_password_hash(senha_do_banco, dados['senha']):
-        #pergunta pra fofoqueira se a senha que o usuário digitou vai virar a msm pizza de abacaxi e não uma diferente
-        #se a pizza for a certa, o acesso é liberado
+    if valido:
         return{"mensagem": "Login realizado!"}
-    else:
-        return {"mensagem": "Senha incorreta"}, 401
-    #caso a fofoqueira disser "pizza portuguesa ou de frango", nega o acesso, NEGA!
+    
+    return {"mensagem": "Email ou senha incorretos"}, 401
     #401 é o código de HTTP de "não autorizado"
 
+@app.route('/dashboard')
+def dashboard():
+    return render_template("dashboard.html")
+
+
+
+
+
+
+
+
+
+
+
+#chama antes do app run
+inicializar_banco()
 if __name__ == '__main__':
     app.run(debug=True)
 #agora o app.run ta dentro do if __name__ -- '__main__'
